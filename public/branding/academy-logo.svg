@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" fill="none">
+  <rect x="2" y="4" width="40" height="40" rx="10" fill="#142B45"/>
+  <path d="M12 17C12 15.8954 12.8954 15 14 15H30C31.1046 15 32 15.8954 32 17V27C32 28.1046 31.1046 29 30 29H14C12.8954 29 12 28.1046 12 27V17Z" stroke="#60A5FA" stroke-width="2.2"/>
+  <path d="M17 34H27" stroke="#93C5FD" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M22 29V34" stroke="#93C5FD" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M17.5 20L21 22.5L17.5 25" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M23.5 25H27.5" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/>
+  <text x="52" y="23" font-family="Plus Jakarta Sans, Inter, sans-serif" font-size="16" font-weight="700" fill="#142B45">SVCA</text>
+  <text x="52" y="37" font-family="Inter, sans-serif" font-size="10.5" font-weight="500" fill="#64748B">Computer Training &amp; CSC Centre</text>
+</svg>

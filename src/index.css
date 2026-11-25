@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --navy-primary: #0B2B5B;
+    --navy-deep: #08234A;
+    --blue-primary: #0754BD;
+    --blue-interactive: #1264D1;
+    --orange-accent: #F58220;
+    --orange-hover: #DC6D12;
+    --bg-canvas: #F4F6F9;
+    --surface-white: #FFFFFF;
+    --text-primary: #111827;
+    --text-secondary: #64748B;
+    --border-subtle: #E2E8F0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #F4F6F9;
+    color: #111827;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Manrope", "Inter", sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  body {
+    background-color: #F4F6F9;
+    color: #111827;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom clean scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

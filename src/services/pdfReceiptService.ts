@@ -1,0 +1,171 @@
+import { jsPDF } from "jspdf";
+import { businessConfig } from "@/config/business.config";
+import type { Receipt } from "@/types";
+import { formatIndianDate } from "@/utils/formatters";
+
+function formatPdfRupee(amount: number): string {
+  const formatted = new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+  }).format(amount);
+  return `Rs. ${formatted}`;
+}
+
+export function buildReceiptPdf(receipt: Receipt): jsPDF {
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a5",
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 14;
+  const contentWidth = pageWidth - margin * 2;
+
+  // Outer framing line
+  doc.setDrawColor(226, 232, 240); // #E2E8F0
+  doc.setLineWidth(0.4);
+  doc.rect(8, 8, pageWidth - 16, pageHeight - 16);
+
+  // Professional Navy Header Bar
+  doc.setFillColor(11, 43, 91); // #0B2B5B
+  doc.rect(8, 8, pageWidth - 16, 23, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text(businessConfig.identity.name, margin, 17, { maxWidth: contentWidth });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.setTextColor(219, 234, 254);
+  doc.text(businessConfig.contact.fullAddress, margin, 22.5, { maxWidth: contentWidth });
+  doc.text(businessConfig.contact.phoneDisplay, margin, 26.5, { maxWidth: contentWidth });
+
+  // Receipt Meta
+  let y = 39;
+  doc.setTextColor(17, 24, 39);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text("FEES PAYMENT RECEIPT", margin, y);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Receipt No: ${receipt.receiptNumber}`, pageWidth - margin, y - 1, { align: "right" });
+  doc.text(`Date: ${formatIndianDate(receipt.paymentDate)}`, pageWidth - margin, y + 4, {
+    align: "right",
+  });
+
+  // Demo Banner Notice
+  y += 9;
+  doc.setFillColor(255, 247, 237);
+  doc.setDrawColor(245, 130, 32); // #F58220
+  doc.rect(margin, y, contentWidth, 7, "FD");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  doc.setTextColor(194, 65, 12);
+  doc.text("DEMO — NOT A VALID PAYMENT RECEIPT", pageWidth / 2, y + 4.7, { align: "center" });
+
+  // Subtle Watermark
+  doc.saveGraphicsState();
+  doc.setTextColor(241, 245, 249);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(26);
+  doc.text("SAMPLE RECEIPT", pageWidth / 2, pageHeight / 2 + 10, {
+    align: "center",
+    angle: 35,
+  });
+  doc.restoreGraphicsState();
+
+  // Student Details Block
+  y += 14;
+  doc.setTextColor(17, 24, 39);
+  doc.setFontSize(8.5);
+
+  const drawRow = (label: string, value: string, rowY: number, bold = false) => {
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 116, 139);
+    doc.text(label, margin, rowY);
+    doc.setFont("helvetica", bold ? "bold" : "normal");
+    doc.setTextColor(17, 24, 39);
+    doc.text(value, margin + 42, rowY, { maxWidth: contentWidth - 42 });
+  };
+
+  drawRow("Student Identifier:", receipt.studentId, y, true);
+  y += 5.5;
+  drawRow("Student Full Name:", receipt.studentName, y, true);
+  y += 5.5;
+  drawRow("Enrolled Course:", receipt.courseName, y);
+  y += 5.5;
+  drawRow("Payment Mode:", receipt.paymentMethod, y);
+  if (receipt.reference) {
+    y += 5.5;
+    drawRow("Reference Note:", receipt.reference, y);
+  }
+
+  // Summary Table
+  y += 9;
+  doc.setFillColor(241, 245, 249); // #F1F5F9
+  doc.rect(margin, y, contentWidth, 7, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(11, 43, 91);
+  doc.text("Fee Account Summary", margin + 3, y + 4.8);
+  doc.text("Amount (INR)", pageWidth - margin - 3, y + 4.8, { align: "right" });
+
+  const drawAmountRow = (label: string, amount: number, rowY: number, highlight = false) => {
+    if (highlight) {
+      doc.setFillColor(239, 246, 255);
+      doc.rect(margin, rowY - 4, contentWidth, 6.8, "F");
+    }
+    doc.setFont("helvetica", highlight ? "bold" : "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(highlight ? 7 : 17, highlight ? 84 : 24, highlight ? 189 : 39);
+    doc.text(label, margin + 3, rowY);
+    doc.text(formatPdfRupee(amount), pageWidth - margin - 3, rowY, { align: "right" });
+  };
+
+  y += 10;
+  drawAmountRow("Total Course Fee Assigned", receipt.totalFees, y);
+  y += 6.5;
+  drawAmountRow("Amount Received (This Receipt)", receipt.amountReceived, y, true);
+  y += 6.5;
+  drawAmountRow("Total Cumulative Paid to Date", receipt.totalPaidAfter, y);
+  y += 6.5;
+  drawAmountRow("Remaining Outstanding Balance", receipt.remainingBalance, y);
+
+  // Footer Note
+  const footerY = pageHeight - 24;
+  doc.setDrawColor(226, 232, 240);
+  doc.line(margin, footerY, pageWidth - margin, footerY);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  doc.setTextColor(100, 116, 139);
+  doc.text(
+    "Generated by interactive sales prototype. Not a valid commercial tax invoice.",
+    margin,
+    footerY + 4.5,
+    { maxWidth: contentWidth }
+  );
+  doc.text(
+    `Bespoke solution architected by ${businessConfig.softrenix.companyName} (${businessConfig.softrenix.websiteUrl})`,
+    margin,
+    footerY + 11
+  );
+
+  return doc;
+}
+
+export function downloadReceiptPdf(receipt: Receipt): void {
+  const doc = buildReceiptPdf(receipt);
+  doc.save(`${receipt.receiptNumber}-SVCA-DEMO.pdf`);
+}
+
+export function printReceiptPdf(receipt: Receipt): void {
+  const doc = buildReceiptPdf(receipt);
+  const blobUrl = doc.output("bloburl");
+  window.open(String(blobUrl), "_blank", "noopener,noreferrer");
+}
